@@ -39,10 +39,10 @@ module Zebra
         elements << element
       end
 
-      def dump_contents(io = STDOUT)
+      def to_s
         check_required_configurations
         # Start options
-        io << "O\n"
+        io = "O\n"
         # Q<label height in dots>,<space between labels in dots>
         io << "Q#{length},#{gap}\n" if length && gap
         # q<label width in dots>
@@ -62,18 +62,7 @@ module Zebra
         end
 
         io << "P#{copies}\n"
-      end
-
-      def persist
-        tempfile = Tempfile.new "zebra_label"
-        dump_contents tempfile
-        tempfile.close
-        @tempfile = tempfile
-        tempfile
-      end
-
-      def persisted?
-        !!self.tempfile
+        return io
       end
 
       private

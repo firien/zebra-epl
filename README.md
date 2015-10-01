@@ -31,62 +31,55 @@ You create new labels with an instance of the `Zebra::Epl::Label` class. It acce
 
 With a label, you can start adding elements to it:
 
-	label = Zebra::Epl::Label.new :print_density => 8, :print_speed => 3
-	text  = Zebra::Epl::Text.new :data => "Hello, printer!", :position => [100, 100], :font => Zebra::Epl::Font::SIZE_2
-	label << text
-	
+    label = Zebra::Epl::Label.new print_density: 8, :print_speed: 3
+    text  = Zebra::Epl::Text.new data: "Hello, printer!", position: [100, 100], font: Zebra::Epl::Font::SIZE_2
+    label << text
+
 You can add as many elements as you want.
 
 ### Printing the labels
 
 You need to have your printer visible to CUPS. Once your printer is configured and you know its name on CUPS, you can send the labels to the printer using a `Zebra::PrintJob` instance.
 
-	label = Zebra::Epl::Label.new(
-	  :width         => 200,
-	  :length        => 200,
-	  :print_speed   => 3,
-	  :print_density => 6
-	)
-	
-	
-	barcode = Zebra::Epl::Barcode.new(
-	  :data                      => "12345678",
-	  :position                  => [50, 50],
-	  :height                    => 50,
-	  :print_human_readable_code => true,
-	  :narrow_bar_width          => 4,
-	  :wide_bar_width            => 8,
-	  :type                      => Zebra::Epl::BarcodeType::CODE_128_AUTO
-	)
-	
-	print_job = Zebra::PrintJob.new "your-printer-name-on-cups"
-	
-	print_job.print label
-
-This will persist the label contents to a tempfile (using Ruby's tempfile core library) and copy the file to the printer using either `lpr -P <your-printer-name-on-cups> -o raw <path-to-the-temp-file>` (if you're on Mac OSX) or `lp -d <your-printer-name-on-cups> -o raw <path-to-the-tempfile>` (if you're on Linux). All the tempfile creation/path resolution, as well as which command has to be used, are handled by the `PrintJob` class. 
+    label = Zebra::Epl::Label.new(
+      width:         200,
+      length:        200,
+      print_speed:   3,
+      print_density: 6
+    )
+    barcode = Zebra::Epl::Barcode.new(
+      data:                      "12345678",
+      position:                  [50, 50],
+      height:                    50,
+      print_human_readable_code: true,
+      narrow_bar_width:          4,
+      wide_bar_width:            8,
+      type:                      Zebra::Epl::BarcodeType::CODE_128_AUTO
+    )
+    label << barcode
+    #print with sockets
+    require 'socket'
+    Socket.tcp('127.0.0.1', 9100) do |sock|
+      sock.print label.to_s
+      sock.close_write
+    end
 
 ### Printing QR codes
 
     label = Zebra::Epl::Label.new(
-      :width=>350,
-      :length=>250,
-      :print_speed=>3,
-      :print_density=>6
+      width:         350,
+      length:        250,
+      print_speed:   3,
+      print_density: 6
     )
-
     qrcode = Zebra::Epl::Qrcode.new(
-      :data=>"www.github.com",
-      :position=>[50,10],
-      :scale_factor=>3,
-      :correction_level=>"H"
+      data:             "www.github.com",
+      position:         [50,10],
+      scale_factor:     3,
+      correction_level: "H"
     )
-
     label << qrcode
 
-    print_job = Zebra::PrintJob.new "your-qr-printer-name-on-cups"
-
-    print_job.print label
-	
 ### Available elements
 
 #### Text
@@ -143,8 +136,8 @@ You can create QR Codes elements to print using instances of the `Zebra::Epl::Qr
 
 You can draw boxes in your labels:
 
-	box = Zebra::Epl::Box.new :position => [20, 20], :end_position => [100, 100], :line_thickness => 39
-	
+    box = Zebra::Epl::Box.new position: [20, 20], end_position: [100, 100], line_thickness: 39
+
 #### Elements rotation
 
 All printable elements can be rotated on the label, using the `:rotation` option. The accepted rotation values are:
@@ -153,8 +146,6 @@ All printable elements can be rotated on the label, using the `:rotation` option
 * `Zebra::Epl::Rotation::DEGREES_90`: will rotate the element 90 degrees.
 * `Zebra::Epl::Rotation::DEGREES_180`: will rotate the element 180 degrees.
 * `Zebra::Epl::Rotation::DEGREES_270`: will rotate the element 270 degrees.
-
-
 
 ## Contributing
 
